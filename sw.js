@@ -1,4 +1,4 @@
-const cacheName = 'gia-hang-v1';
+const cacheName = 'gia-hang-v2';
 const assets = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
