@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a73e8">
+
+<script>
+  // Đăng ký Service Worker để có thể cài đặt như App
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+
+
+    <title>Quản Lý Giá Hàng</title>
+    <style>
+        * { box-sizing: border-box; } /* Đảm bảo padding không làm tràn khung */
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 { text-align: center; color: #1a73e8; margin-top: 0; }
+
+        /* Tối ưu hàng nhập liệu cho điện thoại */
+        .input-group {
+            display: flex;
+            flex-direction: column; /* Mặc định xếp chồng trên màn hình nhỏ */
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Khi màn hình lớn hơn 400px thì mới dàn hàng ngang */
+        @media (min-width: 400px) {
+            .input-group {
+                flex-direction: row;
+            }
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px; /* Tránh iOS tự động zoom khi focus */
+            width: 100%;
+        }
+
+        .btn-add {
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        .search-box {
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #e8f0fe;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 15px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .name { font-weight: 500; color: #333; overflow-wrap: break-word; flex: 1; padding-right: 10px; }
+        .price { font-weight: bold; color: #d93025; white-space: nowrap; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Giá Hàng Nhanh</h2>
+
+    <div class="input-group">
+        <input type="text" id="itemName" placeholder="Tên hàng...">
+        <input type="number" id="itemPrice" placeholder="Giá...">
+        <button class="btn-add" onclick="addItem()">Thêm</button>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm tên mặt hàng..." onkeyup="searchItem()">
+
+    <ul id="itemList"></ul>
+</div>
+
+<script>
+    function addItem() {
+        const nameInput = document.getElementById('itemName');
+        const priceInput = document.getElementById('itemPrice');
+        const list = document.getElementById('itemList');
+
+        const name = nameInput.value.trim();
+        const price = priceInput.value.trim();
+
+        if (!name || !price) {
+            alert("Nhập đủ tên và giá nhé!");
+            return;
+        }
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span class="name">${name}</span>
+            <span class="price">${Number(price).toLocaleString()}đ</span>
+        `;
+
+        // Thêm hàng mới lên đầu danh sách
+        list.insertBefore(li, list.firstChild);
+
+        nameInput.value = "";
+        priceInput.value = "";
+        nameInput.focus();
+    }
+
+    function searchItem() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const items = document.querySelectorAll('#itemList li');
+
+        items.forEach(item => {
+            const text = item.querySelector('.name').textContent.toLowerCase();
+            item.classList.toggle('hidden', !text.includes(filter));
+        });
+    }
+</script>
+
+</body>
+</html>
