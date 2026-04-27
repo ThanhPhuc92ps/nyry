@@ -121,42 +121,77 @@
 </div>
 
 <script>
-    function addItem() {
-        const nameInput = document.getElementById('itemName');
-        const priceInput = document.getElementById('itemPrice');
-        const list = document.getElementById('itemList');
+    // Hàm lưu dữ liệu vào LocalStorage
+function saveToLocal(data) {
+    localStorage.setItem('danhSachGiaHang', JSON.stringify(data));
+}
 
-        const name = nameInput.value.trim();
-        const price = priceInput.value.trim();
+// Hàm lấy dữ liệu từ LocalStorage khi mở App
+function loadFromLocal() {
+    const data = localStorage.getItem('danhSachGiaHang');
+    return data ? JSON.parse(data) : [];
+}
 
-        if (!name || !price) {
-            alert("Nhập đủ tên và giá nhé!");
-            return;
-        }
+// Mảng chứa danh sách hàng hóa
+let allItems = loadFromLocal();
 
+// Hàm hiển thị danh sách ra màn hình
+function renderList(items) {
+    const list = document.getElementById('itemList');
+    list.innerHTML = "";
+    items.forEach((item, index) => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <span class="name">${name}</span>
-            <span class="price">${Number(price).toLocaleString()}đ</span>
+            <span class="name">${item.name}</span>
+            <span class="price">${Number(item.price).toLocaleString()}đ</span>
+            <button onclick="deleteItem(${index})" style="margin-left:10px; background:none; border:none; color:gray;">✕</button>
         `;
+        list.appendChild(li);
+    });
+}
 
-        // Thêm hàng mới lên đầu danh sách
-        list.insertBefore(li, list.firstChild);
+// Chạy lần đầu khi mở app
+renderList(allItems);
 
-        nameInput.value = "";
-        priceInput.value = "";
-        nameInput.focus();
+function addItem() {
+    const nameInput = document.getElementById('itemName');
+    const priceInput = document.getElementById('itemPrice');
+
+    const name = nameInput.value.trim();
+    const price = priceInput.value.trim();
+
+    if (!name || !price) {
+        alert("Nhập đủ tên và giá nhé!");
+        return;
     }
 
-    function searchItem() {
-        const filter = document.getElementById('searchInput').value.toLowerCase();
-        const items = document.querySelectorAll('#itemList li');
+    const newItem = { name, price };
+    allItems.unshift(newItem); // Thêm vào đầu mảng
+    
+    saveToLocal(allItems); // Lưu lại
+    renderList(allItems);  // Cập nhật màn hình
 
-        items.forEach(item => {
-            const text = item.querySelector('.name').textContent.toLowerCase();
-            item.classList.toggle('hidden', !text.includes(filter));
-        });
+    nameInput.value = "";
+    priceInput.value = "";
+    nameInput.focus();
+}
+
+function deleteItem(index) {
+    if(confirm("Xóa mặt hàng này?")) {
+        allItems.splice(index, 1);
+        saveToLocal(allItems);
+        renderList(allItems);
     }
+}
+
+function searchItem() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const filteredItems = allItems.filter(item => 
+        item.name.toLowerCase().includes(filter)
+    );
+    renderList(filteredItems);
+}
+
 </script>
 
 </body>
